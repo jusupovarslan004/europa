@@ -11,36 +11,45 @@ const VacanciesPage = () => {
   const [selectedCountry, setSelectedCountry] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [vacancies, setVacancies] = useState([]);
+  const [allVacancies, setAllVacancies] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     const fetchVacancies = async () => {
       const currentLang = i18n.language === "kg" ? "ky" : i18n.language;
       try {
         setIsLoading(true);
-        const response = await fetch(
-          `https://api.togetherrecruitment.kg/api/v2/info/vacancies/?lang=${currentLang}`
-        );
-        const data = await response.json();
-        setVacancies(data.results || []);
-        setTotalPages(Math.ceil((data.results?.length || 0) / 8));
+        let url = `https://api.togetherrecruitment.kg/api/v2/info/vacancies/?lang=${currentLang}&page=${currentPage}&count_pages=1`;
 
-        const uniqueCountries = [
-          ...new Set(
-            (data.results || [])
-              .map((vacancy) => vacancy?.country)
-              .filter(Boolean)
-          ),
-        ];
-        setCountries(uniqueCountries);
+        console.log('Fetching URL:', url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('API Response:', data);
+        
+        setVacancies(data.results || []);
+        setTotalPages(data.count_pages || 0);
+
+        // Получаем список стран
+        if (currentPage === 1) {
+          const uniqueCountries = [
+            ...new Set(
+              (data.results || [])
+                .map((vacancy) => vacancy?.country)
+                .filter(Boolean)
+            ),
+          ];
+          setCountries(uniqueCountries);
+        }
       } catch (error) {
         console.error("Error fetching vacancies:", error);
-        setVacancies([]);
-        setTotalPages(0);
-        setCountries([]);
         setError(error);
       } finally {
         setIsLoading(false);
@@ -48,11 +57,57 @@ const VacanciesPage = () => {
     };
 
     fetchVacancies();
-  }, [i18n.language]);
+  }, [currentPage, i18n.language]);
+
+  useEffect(() => {
+    const fetchAllVacancies = async () => {
+      const currentLang = i18n.language === "kg" ? "ky" : i18n.language;
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `https://api.togetherrecruitment.kg/api/v2/info/vacancies/?page_size=all&lang=${currentLang}`
+        );
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setAllVacancies(data || []);
+      } catch (error) {
+        console.error("Error fetching all vacancies:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (search.trim() !== "" || selectedCountry !== "all") {
+      fetchAllVacancies();
+    }
+  }, [search, selectedCountry, i18n.language]);
+
+  const filteredVacancies = search.trim() !== "" || selectedCountry !== "all"
+    ? allVacancies.filter(vacancy => {
+        const matchesSearch = search.trim() === "" || 
+          vacancy.title.toLowerCase().includes(search.toLowerCase());
+        const matchesCountry = selectedCountry === "all" || 
+          vacancy.country === selectedCountry;
+        return matchesSearch && matchesCountry;
+      })
+    : vacancies;
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
+  const handleCountryChange = (e) => {
+    setSelectedCountry(e.target.value);
+    setCurrentPage(1);
   };
 
   const formatDate = (dateString) => {
@@ -71,21 +126,6 @@ const VacanciesPage = () => {
     }
   };
 
-  const filteredVacancies = vacancies.filter((vacancy) => {
-    const matchesSearch = vacancy.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesCountry =
-      selectedCountry === "all" || vacancy.country === selectedCountry;
-    return matchesSearch && matchesCountry;
-  });
-
-  const itemsPerPage = 8;
-  const displayedVacancies = filteredVacancies.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   return (
     <div className="vacancies-page">
       <div className="vacancies-page__search">
@@ -96,24 +136,57 @@ const VacanciesPage = () => {
                 type="text"
                 placeholder={t("vacancies.search.placeholder")}
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={handleSearch}
                 className="search-bar__input"
               />
               <img src={searchIcon} alt="Search" className="search-bar__icon" />
             </div>
-            <div className="search-bar__select-wrapper">
-              <select
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                className="search-bar__select"
+            <div className="fancy-select-container">
+              <div 
+                className={`fancy-select ${isDropdownOpen ? 'active' : ''}`}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                <option value="all">{t("vacancies.filters.all_countries")}</option>
-                {countries.map((country, index) => (
-                  <option value={country} key={index}>
-                    {country}
-                  </option>
-                ))}
-              </select>
+                <div className="fancy-select__selected">
+                  <span className="fancy-select__text">
+                    {selectedCountry === 'all' 
+                      ? t("vacancies.filters.all_countries") 
+                      : selectedCountry}
+                  </span>
+                  <div className="fancy-select__arrow">
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                      <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                {isDropdownOpen && (
+                  <div className="fancy-select__dropdown">
+                    <div 
+                      className={`fancy-select__option ${selectedCountry === 'all' ? 'selected' : ''}`}
+                      onClick={() => {
+                        handleCountryChange({ target: { value: 'all' } });
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <span>{t("vacancies.filters.all_countries")}</span>
+                      <div className="option-highlight"></div>
+                    </div>
+                    {countries.map((country, index) => (
+                      <div
+                        key={index}
+                        className={`fancy-select__option ${selectedCountry === country ? 'selected' : ''}`}
+                        onClick={() => {
+                          handleCountryChange({ target: { value: country } });
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        <span>{country}</span>
+                        <div className="option-highlight"></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -121,7 +194,7 @@ const VacanciesPage = () => {
 
       <div className="container">
         <div className="vacancies-page__grid">
-          {displayedVacancies.map((vacancy) => (
+          {filteredVacancies.map((vacancy) => (
             <Link
               to={`/vacancies/${vacancy.id}`}
               key={vacancy.id}
@@ -170,18 +243,22 @@ const VacanciesPage = () => {
         </div>
 
         <div className="vacancies-page__pagination">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
       </div>
 
       {isLoading && <p>{t("vacancies.loading")}</p>}
       {error && <p>{t("vacancies.error")}</p>}
-      {!isLoading && !error && vacancies.length === 0 && (
-        <p>{t("vacancies.no_results")}</p>
+      {!isLoading && filteredVacancies.length === 0 && (
+        <div className="no-results">
+          <p>{t("vacancies.no_results")}</p>
+        </div>
       )}
     </div>
   );

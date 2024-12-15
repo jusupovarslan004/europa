@@ -11,11 +11,14 @@ import "./assets/styles/reset.scss";
 import "./assets/styles/base.scss";
 import DataPages from "./pages/DataPages/DataPages";
 
+
 function App() {
   return (
     <Router>
       <div className="app">
+        
         <Header />
+
         <main className="main">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -24,6 +27,7 @@ function App() {
             <Route path="/vacancies/:id" element={<VacancyDetails />} />
             <Route path="/dataForm" element={<DataPages />} />
             <Route path="/partners" element={<Partners />} />
+
           </Routes>
         </main>
         <Footer />

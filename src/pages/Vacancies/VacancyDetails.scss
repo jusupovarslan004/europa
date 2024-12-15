@@ -1,89 +1,397 @@
 .vacancy-details {
-  padding: 40px 20px;
+  padding: 20px;
   max-width: 1250px;
   margin: 100px auto;
+  animation: fadeIn 0.6s ease-out;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   &__main {
     display: flex;
     gap: 30px;
+  }
 
-    @media (max-width: 992px) {
-      flex-direction: column;
+  &__left-column {
+    flex: 0 0 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: slideInLeft 0.8s ease-out;
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
 
   &__image {
-    flex: 0 0 350px;
-    height: 350px;
+    width: 100%;
+    height: 300px;
     border-radius: 12px;
     overflow: hidden;
-    background: #f4f4f4;
-
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+    
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-    }
+      transition: transform 0.5s ease;
 
-    @media (max-width: 768px) {
-      height: 300px;
+      &:hover {
+        transform: scale(1.05);
+      }
     }
   }
 
   &__info {
     flex: 1;
-    font-family: Arial, sans-serif;
-    color: #333;
+    animation: slideInRight 0.8s ease-out;
+
+    p {
+      position: relative;
+      padding: 10px 0;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateX(10px);
+        
+        strong {
+          color: #ff9b05;
+        }
+      }
+
+      strong {
+        position: relative;
+        transition: color 0.3s ease;
+        
+        &:after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: #ff9b05;
+          transition: width 0.3s ease;
+        }
+      }
+
+      &:hover strong:after {
+        width: 100%;
+      }
+    }
   }
 
-  &__date {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 10px;
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   &__title {
     font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
+    margin-bottom: 25px;
+    background: linear-gradient(45deg, #ff9b05, #ff7b05);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.3s ease;
 
-  &__subtitle {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #333;
-  }
-
-  &__description {
-    font-size: 16px;
-    line-height: 1.5;
-    color: #555;
-    margin-bottom: 20px;
-  }
-
-  p {
-    font-size: 16px;
-    margin-bottom: 8px;
-
-    strong {
-      font-weight: bold;
-      color: #000;
+    &:hover {
+      transform: scale(1.02);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
     }
   }
 
-  .button--primary {
+  &__apply-button {
+    width: 100%;
     padding: 12px 24px;
-    font-size: 16px;
-    background-color: #ffa500;
-    color: #fff;
-    border: none;
     border-radius: 8px;
+    background-color: #ff9b05;
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
 
     &:hover {
-      background-color: #e09400;
+      background: linear-gradient(45deg, #ff9b05, #ff7b05);
+      letter-spacing: 1px;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:after {
+      content: '→';
+      position: absolute;
+      right: 20px;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    &:hover:after {
+      opacity: 1;
+      transform: translateX(5px);
+    }
+
+    &--mobile {
+      display: none;
+    }
+  }
+
+  &__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    color: #666;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      background-color: #f5f5f5;
+    }
+    50% {
+      background-color: #ebebeb;
+    }
+    100% {
+      background-color: #f5f5f5;
+    }
+  }
+
+  // Медиа-запрос для мобильных устройств
+  @media (max-width: 768px) {
+    &__main {
+      flex-direction: column;
+    }
+
+    &__left-column {
+      flex: none;
+      width: 100%;
+      animation: slideInTop 0.8s ease-out;
+    }
+
+    @keyframes slideInTop {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    &__image {
+      height: 250px;
+    }
+
+    &__apply-button {
+      &--desktop {
+        display: none;
+      }
+
+      &--mobile {
+        display: block;
+        margin-top: 20px;
+        animation: fadeInUp 0.6s ease-out;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  // Добавим анимацию загрузки
+  &.loading {
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #ff9b05, transparent);
+      animation: loading 1.5s infinite;
+    }
+  }
+
+  @keyframes loading {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  // Эффект при скролле
+  @media (min-width: 769px) {
+    .vacancy-details__info > * {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInOnScroll 0.5s ease forwards;
+    }
+
+    @for $i from 1 through 10 {
+      .vacancy-details__info > *:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.1}s;
+      }
+    }
+  }
+
+  @keyframes fadeInOnScroll {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.similar-vacancies {
+  margin-top: 60px;
+  padding: 40px 0;
+  background-color: #f8f9fa;
+
+  &__title {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: #333;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+.similar-vacancy-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  &__image {
+    height: 200px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e9ecef;
+    color: #6c757d;
+  }
+
+  &__content {
+    padding: 20px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  &__country {
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  &__salary {
+    color: #4285F4;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 768px) {
+  .similar-vacancies {
+    margin-top: 40px;
+    padding: 30px 0;
+
+    &__title {
+      font-size: 24px;
+    }
+
+    &__grid {
+      grid-template-columns: 1fr;
+      padding: 0 15px;
     }
   }
 }

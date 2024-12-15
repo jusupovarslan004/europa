@@ -1,19 +1,19 @@
 {
   "header": {
-    "about": "About us",
+    "about": "About",
     "vacancies": "Vacancies",
-    "contacts": "Our contacts",
-    "partners": "For partners",
-    "submitRequest": "Submit request"
+    "contacts": "Our Contacts",
+    "partners": "For Partners",
+    "submitRequest": "Submit Request"
   },
   "forms": {
     "partners": {
-      "title": "Fill in these details to collaborate with us!",
+      "title": "Fill in these details to cooperate with us!",
       "fullName": "Your full name",
       "fullNamePlaceholder": "Enter your name",
       "phone": "Your phone number",
-      "phonePlaceholder": "+996...",
-      "company": "Company name",
+      "phonePlaceholder": "+",
+      "company": "Your company name",
       "companyPlaceholder": "Enter your company name",
       "position": "Your position",
       "positionPlaceholder": "Enter your position in the company",
@@ -25,20 +25,31 @@
       "messagePlaceholder": "Enter your message for us",
       "submit": "Submit",
       "sending": "Sending...",
-      "errorCheck": "Please check the entered data and try again"
+      "errorCheck": "Please check your input and try again"
     },
     "contact": {
-      "title": "Submit an application and we will contact you!",
-      "fullName": "Your full name",
-      "fullNamePlaceholder": "Enter full name",
-      "phone": "Your phone number",
-      "phonePlaceholder": "+996...",
+      "title": "Submit Application for Vacancy",
+      "fullName": "Your Full Name",
+      "fullNamePlaceholder": "Enter Full Name",
+      "phone": "Your Phone Number",
+      "phonePlaceholder": "+",
       "country": "Country you want to apply to",
       "countryPlaceholder": "Enter country",
-      "city": "Your city",
+      "city": "Your City",
       "cityPlaceholder": "Enter city",
-      "submit": "Submit application"
-    }
+      "vacancy": "Vacancy",
+      "submit": "Submit Application",
+      "sending": "Sending...",
+      "error": "An error occurred while sending. Please try again.",
+      "success": {
+        "title": "Your application has been successfully submitted!",
+        "message": "We will contact you soon"
+      }
+    },
+    "success": {
+        "title": "Your application has been successfully submitted!",
+        "message": "We will contact you soon"
+      }
   },
   "howWeWork": {
     "title": "How do we work?",
@@ -126,6 +137,7 @@
     "title": "About us"
   },
   "vacancies": {
+    "title": "Vacancies",
     "search": {
       "placeholder": "Search vacancies..."
     },
@@ -144,5 +156,104 @@
     "no_results": "No vacancies found",
     "loading": "Loading vacancies...",
     "error": "Error loading vacancies"
+
+
+
+
+
+    
+  },
+  "vacancy": {
+    "title": "Vacancies",
+    "similar": {
+      "title": "Similar Vacancies"
+    },
+    "loading": "Loading...",
+    "error": {
+      "loading": "Error loading vacancy",
+      "general": "An error occurred: {{error}}"
+    },
+    "image": {
+      "no_image": "No image available"
+    },
+    "date": {
+      "not_specified": "Date not specified",
+      "invalid_format": "Invalid date format"
+    },
+    "details": "Vacancy Details",
+    "labels": {
+      "country": "Country",
+      "program": "Program",
+      "specialization": "Specialization",
+      "age": "Age",
+      "experience": "Experience",
+      "family_status": "Family Status",
+      "salary": "Salary",
+      "schedule": "Work Schedule",
+      "available_positions": "Available Positions"
+    },
+    "buttons": {
+      "apply": "Apply Now"
+    },
+    "not_specified": "Not specified"
+  },
+  "form": {
+    "title": "Fill in these details to review your application",
+    "description": "We process your data in accordance with the laws of the Kyrgyz Republic, guaranteeing their confidentiality and protection from unauthorized access. Details about the processing procedure can be found in our Privacy Policy.",
+    "fields": {
+      "birthLastName": "Birth Last Name",
+      "currentLastName": "Current Last Name",
+      "firstName": "First Name",
+      "patronymic": "Patronymic",
+      "height": "Height",
+      "weight": "Weight",
+      "birthDate": "Date of Birth",
+      "birthPlace": "Place of Birth",
+      "residence": "Actual Residential Address",
+      "registrationAddress": "Registration Address",
+      "citizenship": "Citizenship",
+      "citizenshipBirth": "Citizenship at Birth",
+      "whatsappNumber": "WhatsApp Phone Number",
+      "phoneNumber": "Mobile Phone Number",
+      "passportNumber": "International Passport Number",
+      "passportIssueDate": "International Passport Issue Date",
+      "passportExpirationDate": "International Passport Expiration Date",
+      "passportIssuingAuthority": "International Passport Issuing Authority",
+      "schengenVisa": "Have you had any visas? If yes, please specify which ones",
+
+      "email": "Email",
+
+      "additionalLanguage": "Additional Language",
+      "drivingLicense": "Do you have a driver's license? If yes, specify the category",
+      "education": "Education",
+      "experience": "Work Experience",
+      "familyStatus": {
+      "familyStatus": "Family Status",
+
+        "select": "Select status",
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced"
+      },
+      "englishLevel": {
+      "englishLevel": "English Level",
+
+        "select": "Select level",
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced"
+      }
+    },
+    "placeholders": {
+      "name": "Enter your last name",
+      "birthDate": "02.08.00",
+      "phone": "0...",
+      "address": "Bishkek, Yunusalieva 12/3",
+      "education": "Your education",
+      "experience": "Your work experience",
+      "visa": "Visa",
+      "drivingLicense": "Yes, Category D",
+      "additionalLanguage": "German - B1"
+    }
   }
 }

@@ -1,57 +1,43 @@
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import "./Vacancies.scss";
-import vacancy1 from "../../../assets/images/vacancy1.jpg";
-import vacancy2 from "../../../assets/images/vacancy2.jpg";
-import vacancy3 from "../../../assets/images/vacancy3.jpg";
-import vacancy4 from "../../../assets/images/vacancy4.jpg";
 
 const Vacancies = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [vacancies, setVacancies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const vacancies = [
-    {
-      id: 1,
-      image: vacancy1,
-      title: "Продавец",
-      requirements:
-        "возраст 18+, опыт работы 2 год, заработная плата от 50000 руб",
-      positions: 27,
-      date: "02.06.2024",
-    },
-    {
-      id: 2,
-      image: vacancy2,
-      title: "Продавец",
-      requirements:
-        "возраст 18+, опыт работы 2 год, заработная плата от 50000 руб",
-      positions: 27,
-      date: "02.06.2024",
-    },
-    {
-      id: 3,
-      image: vacancy3,
-      title: "Продавец",
-      requirements:
-        "возраст 18+, опыт работы 2 год, заработная плата от 50000 руб",
-      positions: 27,
-      date: "02.06.2024",
-    },
-    {
-      id: 4,
-      image: vacancy4,
-      title: "Продавец",
-      requirements:
-        "возраст 18+, опыт работы 2 год, заработная плата от 50000 руб",
-      positions: 27,
-      date: "02.06.2024",
-    },
-  ];
+  useEffect(() => {
+    const fetchVacancies = async () => {
+      const currentLang = i18n.language === "kg" ? "ky" : i18n.language;
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `https://api.togetherrecruitment.kg/api/v2/info/vacancies/?lang=${currentLang}`
+        );
+        const data = await response.json();
+        // Берем только первые 4 вакансии
+        setVacancies(data.results?.slice(0, 4) || []);
+      } catch (error) {
+        console.error("Error fetching vacancies:", error);
+        setError(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVacancies();
+  }, [i18n.language]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading vacancies</div>;
 
   return (
     <section className="vacancies">
       <div className="container">
-        <h2 className="vacancies__title">Вакансии</h2>
+        <h2 className="vacancies__title">{t("vacancies.title")}</h2>
         <div className="vacancies__grid">
           {vacancies.map((vacancy) => (
             <Link
@@ -60,16 +46,18 @@ const Vacancies = () => {
               className="vacancies__item"
             >
               <div className="vacancies__image">
-                <img src={vacancy.image} alt={vacancy.title} />
+                <img src={vacancy.img_api || vacancy.img} alt={vacancy.title} />
               </div>
               <div className="vacancies__content">
-                <div className="vacancies__date">{vacancy.date}</div>
+                <div className="vacancies__date">{vacancy.uploaded_at.split(' ')[0]}</div>
                 <h3 className="vacancies__item-title">{vacancy.title}</h3>
-                <p className="vacancies__requirements">
-                  {vacancy.requirements}
-                </p>
+                <div className="vacancies__requirements">
+                  <p><strong>{t("vacancies.labels.country")}: </strong>{vacancy.country}</p>
+                  <p><strong>{t("vacancies.labels.salary")}: </strong>{vacancy.salary}</p>
+                  <p><strong>{t("vacancies.labels.specialization")}: </strong>{vacancy.specialization}</p>
+                </div>
                 <p className="vacancies__positions">
-                  Свободных мест: {vacancy.positions}
+                  {t("vacancies.labels.place")}: {vacancy.place}
                 </p>
               </div>
             </Link>

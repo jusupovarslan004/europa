@@ -1,24 +1,46 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import "./VacancyDetails.scss";
+import ContactModal from "../../components/common/Modal/ContactModal";
+import SuccessModal from "../../components/common/SuccessModal/SuccessModal";
 
 const VacancyDetails = () => {
-  const { id } = useParams(); // Получаем id из URL
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const { id } = useParams();
   const [vacancy, setVacancy] = useState(null);
+  const [similarVacancies, setSimilarVacancies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
+    const currentLang = i18n.language === "kg" ? "ky" : i18n.language;
+
     const fetchVacancyDetails = async () => {
       try {
         const response = await fetch(
-          `https://api.togetherrecruitment.kg/api/v2/info/vacancies/${id}/`
+          `https://api.togetherrecruitment.kg/api/v2/info/vacancies/${id}/?lang=${currentLang}`
         );
         if (!response.ok) {
-          throw new Error("Ошибка при загрузке данных вакансии");
+          throw new Error(t("vacancy.error.loading"));
         }
         const data = await response.json();
         setVacancy(data);
+
+        // Fetch similar vacancies
+        const similarResponse = await fetch(
+          `https://api.togetherrecruitment.kg/api/v2/info/vacancies/?lang=${currentLang}`
+        );
+        if (similarResponse.ok) {
+          const allVacancies = await similarResponse.json();
+          const similar = allVacancies.results
+            .filter(v => v.id !== parseInt(id) && v.specialization === data.specialization)
+            .slice(0, 3);
+          setSimilarVacancies(similar);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -27,78 +49,148 @@ const VacancyDetails = () => {
     };
 
     fetchVacancyDetails();
-  }, [id]);
-  console.log(vacancy);
+  }, [id, i18n.language, t]);
 
   const formatDate = (dateString) => {
-    if (!dateString) return "Дата не указана";
+    if (!dateString) return t("vacancy.date.not_specified");
 
     try {
-      // Разделяем дату и время по пробелу
       const [datePart] = dateString.split(" ");
-      if (!datePart) throw new Error("Некорректный формат строки даты");
-
-      // Проверяем, является ли дата уже в формате DD.MM.YYYY
-      const [day, month, year] = datePart.split(".");
-      if (!day || !month || !year) throw new Error("Некорректный формат даты");
-
-      return `${day}.${month}.${year}`; // Возвращаем только дату
+      if (!datePart) throw new Error("Invalid date string format");
+      return datePart;
     } catch (error) {
-      console.error("Ошибка форматирования даты:", error.message);
-      return "Неверный формат даты";
+      console.error("Date formatting error:", error.message);
+      return t("vacancy.date.invalid_format");
     }
   };
 
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
+  const handleApplyClick = () => {
+    setIsContactModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsContactModalOpen(false);
+  };
+
+  const handleApplicationSuccess = () => {
+    setIsContactModalOpen(false);
+    setIsSuccessModalOpen(true);
+  };
+
+  if (loading) return <div>{t("vacancy.loading")}</div>;
+  if (error) return <div>{t("vacancy.error.general", { error })}</div>;
 
   return (
     <div className="vacancy-details">
       <div className="vacancy-details__main">
-        <div className="vacancy-details__image">
-          {vacancy.img_api ? (
-            <img src={vacancy.img_api} alt={vacancy.title} />
-          ) : (
-            <div className="vacancy-details__placeholder">Нет изображения</div>
-          )}
+        <div className="vacancy-details__left-column">
+          <div className="vacancy-details__image">
+            {vacancy?.img_api ? (
+              <img src={vacancy.img_api} alt={vacancy.title} />
+            ) : (
+              <div className="vacancy-details__placeholder">
+                {t("vacancy.image.no_image")}
+              </div>
+            )}
+          </div>
+          <button 
+            className="button button--primary vacancy-details__apply-button vacancy-details__apply-button--desktop"
+            onClick={handleApplyClick}
+          >
+            {t("vacancy.buttons.apply")}
+          </button>
         </div>
         <div className="vacancy-details__info">
           <p className="vacancy-details__date">
             {vacancy?.uploaded_at
               ? formatDate(vacancy.uploaded_at)
-              : "Дата не указана"}
+              : t("vacancy.date.not_specified")}
           </p>
           <h1 className="vacancy-details__title">{vacancy.title}</h1>
-          <h2 className="vacancy-details__subtitle">Требования:</h2>
-          <p>
-            <strong>Возраст:</strong> {vacancy.age || "Не указано"}
-          </p>
-          <p>
-            <strong>Опыт работы:</strong> {vacancy.experience || "Не указано"}
-          </p>
-          <p>
-            <strong>Семейное положение:</strong>{" "}
-            {vacancy.familyStatus || "Не указано"}
-          </p>
-          <p>
-            <strong>Зарплата:</strong> {vacancy.salary || "Не указано"}
-          </p>
-          <p>
-            <strong>График работы:</strong> {vacancy.schedule || "Не указано"}
-          </p>
-          <p>
-            <strong>Вакансия действует до:</strong>{" "}
-            {vacancy.valid_until || "Не указано"}
-          </p>
-          <p>
-            <strong>Свободные места:</strong> {vacancy.place || "Не указано"}
-          </p>
           <div className="vacancy-details__description">
             <p>{vacancy.text}</p>
           </div>
-          <button className="button button--primary">Оставить заявку</button>
+          <h2 className="vacancy-details__subtitle">{t("vacancy.details")}:</h2>
+          <p>
+            <strong>{t("vacancy.labels.country")}:</strong> {vacancy.country || t("vacancy.not_specified")}
+          </p>
+          <p>
+            <strong>{t("vacancy.labels.program")}:</strong> {vacancy.program || t("vacancy.not_specified")}
+          </p>
+          <p>
+            <strong>{t("vacancy.labels.specialization")}:</strong> {vacancy.specialization || t("vacancy.not_specified")}
+          </p>
+          <p>
+            <strong>{t("vacancy.labels.age")}:</strong> {vacancy.age || t("vacancy.not_specified")}
+          </p>
+          <p>
+            <strong>{t("vacancy.labels.experience")}:</strong> {vacancy.experience || t("vacancy.not_specified")}
+          </p>
+          <p>
+            <strong>{t("vacancy.labels.family_status")}:</strong>{" "}
+            {vacancy.familyStatus || t("vacancy.not_specified")}
+          </p>
+          <p>
+            <strong>{t("vacancy.labels.salary")}:</strong> {vacancy.salary || t("vacancy.not_specified")}
+          </p>
+          <p>
+            <strong>{t("vacancy.labels.schedule")}:</strong> {vacancy.schedule || t("vacancy.not_specified")}
+          </p>
+          <p>
+            <strong>{t("vacancy.labels.available_positions")}:</strong> {vacancy.place || t("vacancy.not_specified")}
+          </p>
+          <button 
+            className="button button--primary vacancy-details__apply-button vacancy-details__apply-button--mobile"
+            onClick={handleApplyClick}
+          >
+            {t("vacancy.buttons.apply")}
+          </button>
         </div>
       </div>
+
+      {similarVacancies.length > 0 && (
+        <div className="similar-vacancies">
+          <h2 className="similar-vacancies__title">{t("vacancy.similar.title")}</h2>
+          <div className="similar-vacancies__grid">
+            {similarVacancies.map((similarVacancy) => (
+              <Link 
+                to={`/vacancies/${similarVacancy.id}`} 
+                key={similarVacancy.id}
+                className="similar-vacancy-card"
+              >
+                <div className="similar-vacancy-card__image">
+                  {similarVacancy.img_api ? (
+                    <img src={similarVacancy.img_api} alt={similarVacancy.title} />
+                  ) : (
+                    <div className="similar-vacancy-card__placeholder">
+                      {t("vacancy.image.no_image")}
+                    </div>
+                  )}
+                </div>
+                <div className="similar-vacancy-card__content">
+                  <h3 className="similar-vacancy-card__title">{similarVacancy.title}</h3>
+                  <p className="similar-vacancy-card__country">{similarVacancy.country}</p>
+                  <p className="similar-vacancy-card__salary">{similarVacancy.salary}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <ContactModal 
+        isOpen={isContactModalOpen}
+        onClose={handleModalClose}
+        onSuccess={handleApplicationSuccess}
+        country={vacancy?.country}
+        vacancyName={vacancy?.title}
+        vacancyId={id}
+      />
+      
+      <SuccessModal 
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+      />
     </div>
   );
 };

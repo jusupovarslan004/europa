@@ -1,7 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './SuccessModal.scss';
 
 const SuccessModal = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
+
+
   if (!isOpen) return null;
 
   return (
@@ -9,12 +13,12 @@ const SuccessModal = ({ isOpen, onClose }) => {
       <div className="success-modal">
         <button className="success-modal__close" onClick={onClose}>×</button>
         <div className="success-modal__icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="#4285F4"/>
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#4285F4" strokeWidth="2">
+            <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
-        <h3>Ваша заявка успешно отправлена!</h3>
-        <p>В скором времени с вами свяжутся</p>
+        <h3>{t('forms.success.title')}</h3>
+        <p>{t('forms.success.message')}</p>
       </div>
     </div>
   );

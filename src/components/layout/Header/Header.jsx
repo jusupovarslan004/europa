@@ -24,7 +24,7 @@ const Header = () => {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Закрываем меню при изменении маршрута
+  // Закрываем меню при изменении ма��шрута
   useEffect(() => {
     setIsMenuOpen(false);
     window.scrollTo(0, 0);
@@ -38,6 +38,18 @@ const Header = () => {
       document.body.style.overflow = "unset";
     }
   }, [isMenuOpen]);
+
+  // Добавляем обработчик клика вне селектора
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isLangOpen && !event.target.closest('.language-selector')) {
+        setIsLangOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isLangOpen]);
 
   const scrollToFooter = (e) => {
     e.preventDefault();
